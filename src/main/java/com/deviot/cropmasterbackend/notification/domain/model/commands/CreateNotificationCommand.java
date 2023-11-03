@@ -5,7 +5,7 @@ import java.util.Date;
 public record CreateNotificationCommand(String message,
                                         String imageUrl,
                                         String notificationType,
-                                        Date date,
+                                        String date,
                                         Long toAccountId,
                                         Long plantId,
                                         Long fromAccountId) {
