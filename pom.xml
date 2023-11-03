@@ -9,10 +9,10 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.deviot</groupId>
-	<artifactId>AgriPureBackend</artifactId>
+	<artifactId>CropMasterBackend</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>AgriPureBackend</name>
-	<description>AgriPureBackend</description>
+	<name>CropMasterBackend</name>
+	<description>CropMasterBackend</description>
 	<properties>
 		<java.version>17</java.version>
 		<version.mapstruct>1.5.3.Final</version.mapstruct>
