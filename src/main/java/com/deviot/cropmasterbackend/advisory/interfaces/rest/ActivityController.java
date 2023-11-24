@@ -20,13 +20,14 @@ public class ActivityController {
     private final ActivityCommandService activityCommandService;
     private final ActivityQueryService activityQueryService;
 
+    @CrossOrigin
     @PostMapping
     public ResponseEntity<?> createActivity(@RequestBody CreateActivityCommand createActivityCommand){
         this.activityCommandService.handle(createActivityCommand);
         return ResponseEntity.ok("Activity created !!");
     }
 
-
+    @CrossOrigin
     @GetMapping("/activityByProjectId/{projectId}")
     public ResponseEntity<?> getActivityByProjectId(@PathVariable("projectId") Long projectId){
         GetActivitiesByProjectId getActivitiesByProjectId=new GetActivitiesByProjectId(projectId);
@@ -37,7 +38,7 @@ public class ActivityController {
             return ResponseEntity.notFound().build();
         }
     }
-
+    @CrossOrigin
     @GetMapping("/activityById/{activityId}")
     public ResponseEntity<?> getActivityById(@PathVariable("activityId") Long activityId){
         GetActivityByIdQuery getActivityByIdQuery=new GetActivityByIdQuery(activityId);
@@ -48,14 +49,14 @@ public class ActivityController {
             return ResponseEntity.notFound().build();
         }
     }
-
+    @CrossOrigin
     @DeleteMapping("/deleteActivityById/{activityId}")
     public ResponseEntity<?> deleteActivityById(@PathVariable("activityId") Long activityId){
         DeleteActivityCommand deleteActivityCommand=new DeleteActivityCommand(activityId);
         String message=this.activityCommandService.handle(deleteActivityCommand);
         return ResponseEntity.ok(message);
     }
-
+    @CrossOrigin
     @PutMapping("/completeActivity/{activityId}")
     public ResponseEntity<?> completeActivityById(@PathVariable("activityId") Long activityId){
         CompleteActivityCommand completeActivityCommand=new CompleteActivityCommand(activityId);

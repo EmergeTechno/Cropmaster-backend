@@ -15,13 +15,10 @@ import com.deviot.cropmasterbackend.profile.domain.model.commands.CreateProfileC
 import com.deviot.cropmasterbackend.profile.domain.model.commands.specialist.CreateSpecialistCommand;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/auth")
+@RequestMapping("/api/v1/auth")
 @RequiredArgsConstructor
 public class AuthController {
 
@@ -31,11 +28,13 @@ public class AuthController {
     private final ProfileCommandService profileCommandService;
     private final SpecialistCommandService specialistCommandService;
 
+    @CrossOrigin
     @PostMapping(value = "login")
     public ResponseEntity<AuthResponse> logIn(@RequestBody LogInCommand logInCommand){
         return ResponseEntity.ok(this.accountCommandService.handle(logInCommand));
     }
 
+    @CrossOrigin
     @PostMapping(value="registerFarmer")
     public ResponseEntity<?> registerFarmer(@RequestBody CreateUserAccount createUserAccount){
 
@@ -57,6 +56,8 @@ public class AuthController {
         String message=this.profileCommandService.handle(createProfileCommand);
         return ResponseEntity.ok(message);
     }
+
+    @CrossOrigin
     @PostMapping(value="registerSpecialist")
     public ResponseEntity<?> registerSpecialist(@RequestBody CreateSpecialistAccount createSpecialistAccount){
 

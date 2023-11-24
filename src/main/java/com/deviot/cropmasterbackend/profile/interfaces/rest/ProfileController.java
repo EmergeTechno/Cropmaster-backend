@@ -7,6 +7,20 @@ import com.deviot.cropmasterbackend.account.domain.model.enums.AccountRol;
 import com.deviot.cropmasterbackend.account.domain.model.queries.GetAccountByEmailQuery;
 import com.deviot.cropmasterbackend.account.domain.model.queries.GetEmailAndTypeByAccountIdQuery;
 import com.deviot.cropmasterbackend.account.domain.model.queries.GetSpecialistsQuery;
+import com.deviot.cropmasterbackend.advisory.application.internal.contact.ContactCommandService;
+import com.deviot.cropmasterbackend.advisory.application.internal.contact.ContactQueryService;
+import com.deviot.cropmasterbackend.advisory.application.internal.project.ProjectCommandService;
+import com.deviot.cropmasterbackend.advisory.application.internal.project.ProjectQueryService;
+import com.deviot.cropmasterbackend.advisory.domain.model.commands.contact.DeleteContactCommand;
+import com.deviot.cropmasterbackend.advisory.domain.model.commands.project.DeleteProjectCommand;
+import com.deviot.cropmasterbackend.advisory.domain.model.entities.Contact;
+import com.deviot.cropmasterbackend.advisory.domain.model.queries.contact.GetContactsByFarmerIdQuery;
+import com.deviot.cropmasterbackend.advisory.domain.model.queries.contact.GetContactsBySpecialistIdQuery;
+import com.deviot.cropmasterbackend.advisory.domain.model.queries.proyect.GetProjectsByFarmerIdQuery;
+import com.deviot.cropmasterbackend.advisory.domain.model.queries.proyect.GetProjectsBySpecialistIdQuery;
+
+import com.deviot.cropmasterbackend.advisory.domain.model.aggregates.Project;
+
 import com.deviot.cropmasterbackend.profile.application.internal.ProfileCommandService;
 import com.deviot.cropmasterbackend.profile.application.internal.QueryService.ProfileQueryService;
 import com.deviot.cropmasterbackend.profile.application.internal.QueryService.SpecialistQueryService;
@@ -17,8 +31,10 @@ import com.deviot.cropmasterbackend.profile.domain.model.commands.CreateProfileC
 import com.deviot.cropmasterbackend.profile.domain.model.commands.DeleteProfileCommand;
 import com.deviot.cropmasterbackend.profile.domain.model.commands.UpdateProfileCommand;
 import com.deviot.cropmasterbackend.profile.domain.model.commands.specialist.DeleteSpecialistCommand;
+import com.deviot.cropmasterbackend.profile.domain.model.commands.specialist.UpdateSpecialistCommand;
 import com.deviot.cropmasterbackend.profile.domain.model.queries.GetProfileByAccountIdQuery;
 import com.deviot.cropmasterbackend.profile.domain.model.queries.specialist.GetSpecialistByAccountIdQuery;
+import com.deviot.cropmasterbackend.profile.interfaces.rest.dto.UpdateSpecialistProfile;
 import com.deviot.cropmasterbackend.profile.interfaces.rest.dto.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -37,12 +53,17 @@ public class ProfileController {
     private final SpecialistQueryService specialistQueryService;
     private final SpecialistCommandService specialistCommandService;
     private final AccountCommandService accountCommandService;
-
+    private final ProjectCommandService projectCommandService;
+    private final ProjectQueryService projectQueryService;
+    private final ContactCommandService contactCommandService;
+    private final ContactQueryService contactQueryService;
+    @CrossOrigin
     @PostMapping
     public ResponseEntity<?> createProfile(@RequestBody CreateProfileCommand createProfileCommand){
         this.profileCommandService.handle(createProfileCommand);
         return ResponseEntity.ok("Profile created!!!");
     }
+    @CrossOrigin
     @GetMapping("/getProfile/{accountId}")
     public ResponseEntity<?> getUserByAccountId(@PathVariable("accountId")Long accountId){
         GetProfileByAccountIdQuery getProfileByAccountIdQuery=new GetProfileByAccountIdQuery(accountId);
@@ -68,7 +89,7 @@ public class ProfileController {
             return ResponseEntity.notFound().build();
         }
     }
-
+    @CrossOrigin
     @GetMapping("/getProfileByEmail/{email}")
     public ResponseEntity<?> getUserByAccountEmail(@PathVariable("email")String email){
         GetAccountByEmailQuery getAccountByEmailQuery=new GetAccountByEmailQuery(email);
@@ -94,7 +115,7 @@ public class ProfileController {
             return ResponseEntity.notFound().build();
         }
     }
-
+    @CrossOrigin
     @GetMapping("/getSpecialistInfoByAccountId/{accountId}")
     public ResponseEntity<?> getSpecialistInfoByAccountId(@PathVariable("accountId")Long accountId){
         GetSpecialistByAccountIdQuery getSpecialistByAccountIdQuery=new GetSpecialistByAccountIdQuery(accountId);
@@ -105,7 +126,7 @@ public class ProfileController {
             return ResponseEntity.notFound().build();
         }
     }
-
+    @CrossOrigin
     @GetMapping("/getSpecialists")
     public ResponseEntity<?>getAllProfilesBySpecialistType(){
         GetSpecialistsQuery getSpecialistsQuery =new GetSpecialistsQuery(AccountRol.SPECIALIST);
@@ -139,13 +160,24 @@ public class ProfileController {
             return ResponseEntity.notFound().build();
         }
     }
-
-    @PutMapping
-    public ResponseEntity<?> updateProfileByAccountId(@RequestBody UpdateProfileCommand updateProfileCommand){
+    @CrossOrigin
+    @PutMapping("/updateFarmer")
+    public ResponseEntity<?> updateFarmerProfileByAccountId(@RequestBody UpdateProfileCommand updateProfileCommand){
         String message=this.profileCommandService.handle(updateProfileCommand);
         return ResponseEntity.ok(message);
     }
-
+    @CrossOrigin
+    @PutMapping("/updateSpecialist")
+    public ResponseEntity<?> updateSpecialistProfileByAccountId(@RequestBody UpdateSpecialistProfile updateSpecialistProfile){
+        UpdateProfileCommand updateProfileCommand=new UpdateProfileCommand(updateSpecialistProfile.getAccountId(),
+                updateSpecialistProfile.getName(), updateSpecialistProfile.getDescription(),
+                updateSpecialistProfile.getImageUrl(),updateSpecialistProfile.getLocation(),updateSpecialistProfile.getPlanId());
+        UpdateSpecialistCommand updateSpecialistCommand=new UpdateSpecialistCommand(updateProfileCommand.accountId(), updateSpecialistProfile.getExpertise(), updateSpecialistProfile.getContactEmail(), updateSpecialistProfile.getAreasOfFocus());
+        String messageSpecialist=this.specialistCommandService.handle(updateSpecialistCommand);
+        String message=this.profileCommandService.handle(updateProfileCommand);
+        return ResponseEntity.ok(message+messageSpecialist);
+    }
+    @CrossOrigin
     @DeleteMapping("/deleteProfile/{accountId}")
     public ResponseEntity<?> deleteProfileByAccountId(@PathVariable("accountId")Long accountId){
 
@@ -159,6 +191,49 @@ public class ProfileController {
 
         DeleteProfileCommand deleteProfileCommand=new DeleteProfileCommand(accountId);
         DeleteAccountCommand deleteAccountCommand=new DeleteAccountCommand(accountId);
+
+        if(!profile.getClass().toString().equals("SPECIALIST")){
+
+            GetContactsBySpecialistIdQuery getContactsBySpecialistIdQuery=new GetContactsBySpecialistIdQuery(accountId);
+            List<Contact> contacts=contactQueryService.handle(getContactsBySpecialistIdQuery);
+            if(contacts!=null){
+                for (Contact contact : contacts) {
+                    DeleteContactCommand deleteContactCommand=new DeleteContactCommand(contact.getId());
+                    contactCommandService.handle(deleteContactCommand);
+                }
+            }
+
+            GetProjectsByFarmerIdQuery getProjectsByFarmerIdQuery=new GetProjectsByFarmerIdQuery(accountId);
+            List<Project> projects=projectQueryService.handle(getProjectsByFarmerIdQuery);
+            if(projects!=null){
+                for (Project project : projects) {
+                    DeleteProjectCommand deleteProjectCommand = new DeleteProjectCommand(project.getId());
+                    projectCommandService.handle(deleteProjectCommand);
+                }
+            }
+
+
+        }
+        if(!profile.getClass().toString().equals("FARMER")){
+            GetContactsByFarmerIdQuery getContactsByFarmerIdQuery=new GetContactsByFarmerIdQuery(accountId);
+            List<Contact> contacts=contactQueryService.handle(getContactsByFarmerIdQuery);
+            if(contacts!=null){
+                for (Contact contact : contacts) {
+                    DeleteContactCommand deleteContactCommand=new DeleteContactCommand(contact.getId());
+                    contactCommandService.handle(deleteContactCommand);
+                }
+            }
+
+            GetProjectsBySpecialistIdQuery getProjectsBySpecialistIdQuery=new GetProjectsBySpecialistIdQuery(accountId);
+            List<Project> projects=projectQueryService.handle(getProjectsBySpecialistIdQuery);
+            if(projects!=null){
+                for (Project project : projects) {
+                    DeleteProjectCommand deleteProjectCommand = new DeleteProjectCommand(project.getId());
+                    projectCommandService.handle(deleteProjectCommand);
+                }
+            }
+        }
+
         String profileMessage=this.profileCommandService.handle(deleteProfileCommand);
         String accountMessage=this.accountCommandService.handle(deleteAccountCommand);
         return ResponseEntity.ok(profileMessage+accountMessage);

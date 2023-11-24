@@ -39,6 +39,7 @@ public class ProfileCommandService implements IProfileCommandService {
             profile.get().setDescription(updateProfileCommand.description());
             profile.get().setImageUrl(updateProfileCommand.imageUrl());
             profile.get().setLocation(updateProfileCommand.location());
+            profile.get().setPlanId(updateProfileCommand.planId());
             profileRepository.save(profile.get());
             return "Profile updated!";
         }

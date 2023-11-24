@@ -33,4 +33,9 @@ public class CropReport {
     @Column(name="crop_id")
     private Long cropId;
 
+    public void SetDescription(String newDescription){
+        this.description=newDescription;
+    }
+    
+
 }

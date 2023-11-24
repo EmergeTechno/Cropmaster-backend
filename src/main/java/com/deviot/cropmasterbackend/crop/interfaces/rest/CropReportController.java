@@ -19,13 +19,13 @@ import java.util.List;
 public class CropReportController {
     private final CropReportCommandService cropReportCommandService;
     private final CropReportQueryService cropReportQueryService;
-
+    @CrossOrigin
     @PostMapping
     public ResponseEntity<?> createCropReport(@RequestBody AddCropReportCommand addCropReportCommand){
         this.cropReportCommandService.handle(addCropReportCommand);
         return ResponseEntity.ok("Crop report created!!");
     }
-
+    @CrossOrigin
     @GetMapping("/getCropReport/{cropReportId}")
     public ResponseEntity<?> getCropReportById(@PathVariable("cropReportId") Long cropReportId){
         GetCropReportByIdQuery getCropReportByIdQuery=new GetCropReportByIdQuery(cropReportId);
@@ -38,6 +38,7 @@ public class CropReportController {
             return ResponseEntity.notFound().build();
         }
     }
+    @CrossOrigin
     @GetMapping("/{cropId}")
     public ResponseEntity<?> getCropsByFarmerId(@PathVariable("cropId") Long cropId){
         GetCropReportsByCropIdQuery getCropReportsByCropIdQuery=new GetCropReportsByCropIdQuery(cropId);

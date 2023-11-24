@@ -1,7 +1,8 @@
 package com.deviot.cropmasterbackend.advisory.application.internal.project;
 
 import com.deviot.cropmasterbackend.advisory.domain.Services.project.IProjectQueryService;
-import com.deviot.cropmasterbackend.advisory.domain.model.entities.Project;
+import com.deviot.cropmasterbackend.advisory.domain.model.aggregates.Project;
+import com.deviot.cropmasterbackend.advisory.domain.model.queries.proyect.GetProjectByCropIdQuery;
 import com.deviot.cropmasterbackend.advisory.domain.model.queries.proyect.GetProjectByIdQuery;
 import com.deviot.cropmasterbackend.advisory.domain.model.queries.proyect.GetProjectsByFarmerIdQuery;
 import com.deviot.cropmasterbackend.advisory.domain.model.queries.proyect.GetProjectsBySpecialistIdQuery;
@@ -19,6 +20,12 @@ public class ProjectQueryService implements IProjectQueryService {
     @Override
     public Project handle(GetProjectByIdQuery getProjectByIdQuery) {
         Optional<Project> project =projectRepository.findById(getProjectByIdQuery.projectId());
+        return project.get();
+    }
+
+    @Override
+    public Project handle(GetProjectByCropIdQuery getProjectByCropIdQuery) {
+        Optional<Project> project= Optional.ofNullable(projectRepository.findProjectByCropId(getProjectByCropIdQuery.cropId()));
         return project.get();
     }
 

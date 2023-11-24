@@ -3,6 +3,7 @@ package com.deviot.cropmasterbackend.profile.application.internal;
 import com.deviot.cropmasterbackend.profile.domain.model.aggregates.Specialist;
 import com.deviot.cropmasterbackend.profile.domain.model.commands.specialist.CreateSpecialistCommand;
 import com.deviot.cropmasterbackend.profile.domain.model.commands.specialist.DeleteSpecialistCommand;
+import com.deviot.cropmasterbackend.profile.domain.model.commands.specialist.UpdateSpecialistCommand;
 import com.deviot.cropmasterbackend.profile.domain.service.ISpecialistCommandService;
 import com.deviot.cropmasterbackend.profile.infrastructure.SpecialistRepository;
 import lombok.RequiredArgsConstructor;
@@ -37,6 +38,21 @@ public class SpecialistCommandService implements ISpecialistCommandService {
             return "SPECIALIST with Id "+deleteSpecialistCommand.accountId()+" was deleted";
         }else {
             return "SPECIALIST with Id: "+deleteSpecialistCommand.accountId()+" doesn´t exist";
+        }
+    }
+
+    @Override
+    public String handle(UpdateSpecialistCommand updateSpecialistCommand) {
+        Optional<Specialist> specialist=Optional.ofNullable(specialistRepository.findSpecialistByAccountId(updateSpecialistCommand.accountId()));
+        if(specialist.isPresent()){
+            specialist.get().setExpertise(updateSpecialistCommand.expertise());
+            specialist.get().setAreasOfFocus(updateSpecialistCommand.areasOfFocus());
+            specialist.get().setContactEmail(updateSpecialistCommand.contactEmail());
+            specialistRepository.save(specialist.get());
+            return "Specialist updated!";
+        }
+        else {
+            return "Specialist with the given id doesn't exist";
         }
     }
 }
