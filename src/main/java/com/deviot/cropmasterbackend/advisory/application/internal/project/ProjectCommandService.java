@@ -1,10 +1,11 @@
 package com.deviot.cropmasterbackend.advisory.application.internal.project;
 
 import com.deviot.cropmasterbackend.advisory.domain.Services.project.IProyectCommandService;
+import com.deviot.cropmasterbackend.advisory.domain.model.commands.project.AddDeviceProjectCommand;
 import com.deviot.cropmasterbackend.advisory.domain.model.commands.project.CreateProjectCommand;
 import com.deviot.cropmasterbackend.advisory.domain.model.commands.project.DeleteProjectCommand;
 import com.deviot.cropmasterbackend.advisory.domain.model.commands.project.StartProjectCommand;
-import com.deviot.cropmasterbackend.advisory.domain.model.entities.Project;
+import com.deviot.cropmasterbackend.advisory.domain.model.aggregates.Project;
 import com.deviot.cropmasterbackend.advisory.infrastructure.ProjectRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -15,12 +16,27 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class ProjectCommandService implements IProyectCommandService {
     private final ProjectRepository projectRepository;
+
+    @Override
+    public String handle(AddDeviceProjectCommand addDeviceProjectCommand) {
+        Optional<Project> project=projectRepository.findById(addDeviceProjectCommand.id());
+        if(project.isPresent()){
+            project.get().setDevice(true);
+            projectRepository.save(project.get());
+            return "Device changed!!";
+        }
+        else{
+            return "Projet with the given id doesn't exist";
+        }
+    }
+
     @Override
     public String handle(CreateProjectCommand createProjectCommand) {
         Project newProject=Project.builder().farmerId(createProjectCommand.farmerId())
                 .specialistId(createProjectCommand.specialistId())
                 .isProjectStarted(createProjectCommand.isStarted())
                 .cropId(createProjectCommand.cropId())
+                .device(createProjectCommand.device())
                 .name(createProjectCommand.name())
                 .description(createProjectCommand.description())
                 .startDate(createProjectCommand.startDate())

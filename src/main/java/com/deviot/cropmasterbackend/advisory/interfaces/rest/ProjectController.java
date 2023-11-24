@@ -2,10 +2,12 @@ package com.deviot.cropmasterbackend.advisory.interfaces.rest;
 
 import com.deviot.cropmasterbackend.advisory.application.internal.project.ProjectCommandService;
 import com.deviot.cropmasterbackend.advisory.application.internal.project.ProjectQueryService;
+import com.deviot.cropmasterbackend.advisory.domain.model.commands.project.AddDeviceProjectCommand;
 import com.deviot.cropmasterbackend.advisory.domain.model.commands.project.CreateProjectCommand;
 import com.deviot.cropmasterbackend.advisory.domain.model.commands.project.DeleteProjectCommand;
 import com.deviot.cropmasterbackend.advisory.domain.model.commands.project.StartProjectCommand;
-import com.deviot.cropmasterbackend.advisory.domain.model.entities.Project;
+import com.deviot.cropmasterbackend.advisory.domain.model.aggregates.Project;
+import com.deviot.cropmasterbackend.advisory.domain.model.queries.proyect.GetProjectByCropIdQuery;
 import com.deviot.cropmasterbackend.advisory.domain.model.queries.proyect.GetProjectByIdQuery;
 import com.deviot.cropmasterbackend.advisory.domain.model.queries.proyect.GetProjectsByFarmerIdQuery;
 import com.deviot.cropmasterbackend.advisory.domain.model.queries.proyect.GetProjectsBySpecialistIdQuery;
@@ -22,17 +24,30 @@ public class ProjectController {
     private final ProjectCommandService projectCommandService;
     private final ProjectQueryService projectQueryService;
 
-
+    @CrossOrigin
     @PostMapping
     public ResponseEntity<?> createProject(@RequestBody CreateProjectCommand createProjectCommand){
         this.projectCommandService.handle(createProjectCommand);
         return ResponseEntity.ok("Project Created!!");
     }
-
+    @CrossOrigin
     @GetMapping("/projectsById/{projectId}")
     public ResponseEntity<?> getProjectById(@PathVariable("projectId") Long projectId){
         GetProjectByIdQuery getProjectByIdQuery=new GetProjectByIdQuery(projectId);
         Project project=this.projectQueryService.handle(getProjectByIdQuery);
+        if(project!=null){
+            return ResponseEntity.ok(project);
+        }
+        else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @CrossOrigin
+    @GetMapping("/getProjectByCropId/{cropId}")
+    public ResponseEntity<?> getProjectByCropId(@PathVariable("cropId") Long cropId){
+        GetProjectByCropIdQuery getProjectByCropIdQuery=new GetProjectByCropIdQuery(cropId);
+        Project project=this.projectQueryService.handle(getProjectByCropIdQuery);
         if(project!=null){
             return ResponseEntity.ok(project);
         }
@@ -70,6 +85,13 @@ public class ProjectController {
     public ResponseEntity<?> startProjectById(@PathVariable("projectId") Long projectId){
         StartProjectCommand startProjectCommand=new StartProjectCommand(projectId);
         String message=this.projectCommandService.handle(startProjectCommand);
+        return ResponseEntity.ok(message);
+    }
+
+    @PutMapping("/AddDeviceProject/{projectId}")
+    public ResponseEntity<?> AddDeviceProject(@PathVariable("projectId") Long projectId){
+        AddDeviceProjectCommand addDeviceProjectCommand=new AddDeviceProjectCommand(projectId);
+        String message=this.projectCommandService.handle(addDeviceProjectCommand);
         return ResponseEntity.ok(message);
     }
 

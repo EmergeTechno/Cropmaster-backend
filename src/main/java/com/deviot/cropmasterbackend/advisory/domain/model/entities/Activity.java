@@ -3,6 +3,8 @@ package com.deviot.cropmasterbackend.advisory.domain.model.entities;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.Date;
+
 @Data
 @Entity
 @Table(name = "activities")

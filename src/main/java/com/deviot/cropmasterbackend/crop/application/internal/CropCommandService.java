@@ -1,10 +1,12 @@
 package com.deviot.cropmasterbackend.crop.application.internal;
 
-import com.deviot.cropmasterbackend.crop.domain.model.aggregates.Crop;
-import com.deviot.cropmasterbackend.crop.domain.model.commands.CreateCropCommand;
-import com.deviot.cropmasterbackend.crop.domain.model.commands.DeleteCropCommand;
+import com.deviot.cropmasterbackend.crop.domain.model.entities.Crop;
+import com.deviot.cropmasterbackend.crop.domain.model.commands.*;
 import com.deviot.cropmasterbackend.crop.domain.services.ICropCommandService;
 import com.deviot.cropmasterbackend.crop.infrastructure.CropRepository;
+import com.deviot.cropmasterbackend.crop.domain.model.commands.CreateCropCommand;
+import com.deviot.cropmasterbackend.crop.domain.model.commands.DeleteCropCommand;
+import com.deviot.cropmasterbackend.crop.domain.model.commands.SetSpecialistToCropCommand;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -20,6 +22,7 @@ public class CropCommandService implements ICropCommandService {
         Crop newCrop=Crop.builder()
                 .farmerId(createCropCommand.farmerId())
                 .plantId(createCropCommand.plantId())
+                .specialistId((long)0)
                 .createdAt(new Date())
                 .updatedAt(new Date())
                 .build();
@@ -29,6 +32,18 @@ public class CropCommandService implements ICropCommandService {
         return "CAN'T REGISTER YOUR CROP";
     }
 
+    @Override
+    public String handle(SetSpecialistToCropCommand setSpecialistToCropCommand) {
+        Optional<Crop> crop=cropRepository.findById(setSpecialistToCropCommand.id());
+        if (crop.isPresent()){
+            crop.get().setSpecialistId(setSpecialistToCropCommand.specialistId());
+            cropRepository.save(crop.get());
+            return "crop updated!!";
+        }
+        else{
+            return "crop with the given id doesn't exist";
+        }
+    }
 
 
     @Override

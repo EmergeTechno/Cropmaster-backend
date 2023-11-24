@@ -7,7 +7,7 @@ import com.deviot.cropmasterbackend.account.domain.model.commands.LogInCommand;
 import com.deviot.cropmasterbackend.account.domain.model.enums.AccountRol;
 import com.deviot.cropmasterbackend.account.infrastructure.dtos.AuthResponse;
 import com.deviot.cropmasterbackend.account.infrastructure.repositories.AccountRepository;
-import com.deviot.cropmasterbackend.account.jwt.Service.JwtService;
+import com.deviot.cropmasterbackend.account.application.internal.jwt.Service.JwtService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;

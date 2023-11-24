@@ -1,6 +1,6 @@
 package com.deviot.cropmasterbackend.crop.application.internal.QueryService;
 
-import com.deviot.cropmasterbackend.crop.domain.model.aggregates.Crop;
+import com.deviot.cropmasterbackend.crop.domain.model.entities.Crop;
 import com.deviot.cropmasterbackend.crop.domain.model.queries.GetCropByIdQuery;
 import com.deviot.cropmasterbackend.crop.domain.model.queries.GetCropsByFarmerIdQuery;
 import com.deviot.cropmasterbackend.crop.domain.services.queryService.ICropQueryService;
