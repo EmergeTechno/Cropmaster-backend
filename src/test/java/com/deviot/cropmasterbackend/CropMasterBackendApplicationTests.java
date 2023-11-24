@@ -34,4 +34,14 @@ class CropMasterBackendApplicationTests {
 
 	}
 
+	@Test
+	void testLoginUser() {
+		LogInCommand logInCommand = new LogInCommand("correo@example.com", "123");
+
+		AuthResponse response = this.accountCommandService.handle(logInCommand);
+
+		assertNotNull(response);
+		assertNotNull(response.getToken());
+	}
+
 }
